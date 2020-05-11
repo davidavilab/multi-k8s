@@ -1,0 +1,26 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    # disparamos el constructor especificando el archivo docker la diferencia es que el contexto
+    # ahora es ./client por que ese componente se esta ejecutando
+    - docker build -t davidavilab/react-test -f ./client/Dockerfile.dev ./client
+    # aqui se pueden incluir todos los build que se requieran para construir nuestras imagenes
+
+script:
+    # este script se ejecuta, travis CI asume fallo si 
+    - docker run -e CI=true davidavilab/react-test npm test
+
+after_success:
+    - docker build -t davidavilab/multi-client ./client
+    - docker build -t davidavilab/multi-nginx ./nginx
+    - docker build -t davidavilab/multi-server ./server
+    - docker build -t davidavilab/multi-worker ./worker
+    # las imagenes se van a desplegar en docker hub, para eso se deben crear variables en travis CI que se conectan a dockerhub
+    # una vez realizado este proceso se puede hacer que travi CI envie dichas imagenes a dockerhub
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stidn
+    - docker push davidavilab/multi-client
+    - docker push davidavilab/multi-nginx
+    - docker push davidavilab/multi-server
+    - docker push davidavilab/multi-worker
