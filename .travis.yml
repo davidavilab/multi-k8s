@@ -5,7 +5,7 @@ services:
 before_install:
     # disparamos el constructor especificando el archivo docker la diferencia es que el contexto
     # ahora es ./client por que ese componente se esta ejecutando
-    - docker build -t davidavilab/react-test -f ./client/Dockerfile.dev ./client
+    - docker build -t davidavilab\react-test -f ./client/Dockerfile.dev ./client
     # aqui se pueden incluir todos los build que se requieran para construir nuestras imagenes
 
 script:
