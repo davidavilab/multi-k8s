@@ -20,7 +20,7 @@ after_success:
     - docker build -t davidavilab/multi-worker ./worker
     # las imagenes se van a desplegar en docker hub, para eso se deben crear variables en travis CI que se conectan a dockerhub
     # una vez realizado este proceso se puede hacer que travi CI envie dichas imagenes a dockerhub
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stidn
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
     - docker push davidavilab/multi-client
     - docker push davidavilab/multi-nginx
     - docker push davidavilab/multi-server
