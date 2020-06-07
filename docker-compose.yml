@@ -1,58 +1,52 @@
-version: '3'
+version: "3"
 services:
-    postgres:
-        image: 'postgres:latest'
-        environment:
-            - POSTGRES_PASSWORD=postgres_password
-    redis:
-        image: 'redis:latest'
-    #esta imagen de nginx se creo para servir de proxy o gateway para acceder al front o al api ***pilas con esto***
-    nginx: 
-        restart: always
-        build:
-            dockerfile: Dockerfile.dev
-            context: ./nginx
-        ports:
-            - "3050:80"
-        depends_on: 
-            - api
-            - client
-    api:
-        build:
-            dockerfile: Dockerfile.dev
-            #indica que el archivo dockerfile que debe tomar se encuentra en esta ruta
-            #dado que el archivo docker-compose se encuentra en la ruta superior
-            context: ./server
-        volumes: 
-            #indica que esta carpeta no debe toparse
-            - /app/node_modules 
-            #especifica toda la carpeta ./server debe ir a la carpeta /app
-            - ./server:/app
-        environment: 
-            - REDIS_HOST=redis #hace referencia al servicio de redis
-            - REDIS_PORT=6379 #de dockerhub documentation
-            - PGUSER=postgres
-            - PGHOST=postgres #hace referencia al servicio de postgres
-            - PGDATABASE=postgres
-            - PGPASSWORD=postgres_password
-            - PGPORT=5432
-        depends_on: 
-            - postgres
-    client:
-        stdin_open: true #debido al bicho introducido en la ultima version de react
-        build:
-            dockerfile: Dockerfile.dev
-            context: ./client
-        volumes: 
-            - /app/node_modules
-            - ./client:/app
-    worker:
-        build:
-            dockerfile: Dockerfile.dev
-            context: ./worker
-        volumes:
-            - /app/node_modules
-            - ./worker:/app
-        environment: 
-            - REDIS_HOST=redis #hace referencia al servicio de redis
-            - REDIS_PORT=6379 #de dockerhub documentation
+  postgres:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_PASSWORD=postgres_password
+  redis:
+    image: "redis:latest"
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - "3050:80"
+  api:
+    depends_on:
+      - postgres
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./server
+    volumes:
+      - /app/node_modules
+      - ./server:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - PGUSER=postgres
+      - PGHOST=postgres
+      - PGDATABASE=postgres
+      - PGPASSWORD=postgres_password
+      - PGPORT=5432
+  client:
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./client
+    volumes:
+      - /app/node_modules
+      - ./client:/app
+  worker:
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./worker
+    volumes:
+      - /app/node_modules
+      - ./worker:/app
