@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: server-deployment
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            component: server
+    template:
+        metadata:
+            labels:
+                component: server
+        spec:
+            containers:
+                - name: server
+                  image: davidavilab/multi-server
+                  ports:
+                    - containerPort: 5000 #esto esta quemado para el componente server
+                  env:
+                    - name: REDIS_HOST
+                      value: redis-cluster-ip-service
+                    - name: REDIS_PORT
+                      value: '6379' #RECUERDA QUE CUANDO SE PASAN VARIABLES DE ENTORNO ESTOS VALORES DEBEN PASARSE COMO STRING
+                                    #CASO CONTRARIO SE TENDRA UN ERROR
+                    - name: PGUSER
+                      value: postgres #no debe ser este usuario en un ambiente de produccion, ya que es el super usuario
+                    - name: PGHOST
+                      value: postgres-cluster-ip-service
+                    - name: PGPORT
+                      value: '5432'
+                    - name: PGDATABASE
+                      value: postgres # de igual forma no es el valor correcto, en producción se debería tener una bdd propia
+                    - name: PGPASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                            name: pgpassword #este es el nombre del secret que se creo con kubectl create secret generic ...
+                            key: PGPASSWORD #este es el key del secreto que se creó con el comando anterior
